@@ -7,6 +7,7 @@ For now, it is for research purpose, not implemented for product.
 # Install dependencies
 ```
 $ pip install cached_property
+$ pip install fnv
 $ pip install wasmer==1.0.0a3
 $ pip install wasmer_compiler_cranelift==1.0.0a3
 ```
@@ -14,9 +15,9 @@ $ pip install wasmer_compiler_cranelift==1.0.0a3
 # Run
 
 ```
-$ python -m python-snark.groth16.groth_setup
-$ python -m python-snark.groth16.groth_verifier
-$ python -m python-snark.groth16.groth_prover
+$ python -m python-snarks.groth16.groth_setup
+$ python -m python-snarks.groth16.groth_verifier
+$ python -m python-snarks.groth16.groth_prover
 ```
 
 # Supported platforms
