@@ -55,7 +55,6 @@ class Groth:
         else:
             self.update_toxic(toxic)
 
-        self.update_toxic()
         self.calc_polynomials()
         self.calc_values_at_T()
         self.calc_encrypted_values_at_T()
