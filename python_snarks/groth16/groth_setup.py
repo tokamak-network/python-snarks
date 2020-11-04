@@ -50,6 +50,11 @@ class Groth:
         self.PF = bn128_FieldPolynomial()
 
     def setup_zk(self, toxic=None):
+        if self.setup["toxic"]["t"] != None:
+            pass
+        else:
+            self.update_toxic(toxic)
+
         self.update_toxic()
         self.calc_polynomials()
         self.calc_values_at_T()

@@ -25,7 +25,8 @@ setup(
     install_requires=[
         'fnv>=0.2.0',
         'wasmer>=1.0.0a3',
-        'wasmer_compiler_cranelift>=1.0.0a3'
+        'wasmer_compiler_cranelift>=1.0.0a3',
+        'pytest>=6.1.2'
     ],
     python_requires='>=3.6,<4',
     extras_require=extras_require,
