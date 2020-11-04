@@ -1,11 +1,3 @@
-try:
-    # Python 3.8
-    from functools import cached_property  # type: ignore
-except (ImportError, SyntaxError):
-    # Python 3 to 3.7
-    from cached_property import cached_property
-
-
 from typing import (  # noqa: F401
     cast,
     List,
