@@ -87,13 +87,12 @@ def calculate_H(vk_proof, witness):
     return h_s
 
 if __name__ == "__main__":
+    ## setup
     gr = Groth(os.path.dirname(os.path.realpath(__file__)) + "/circuit/circuit.r1cs")
-    gr.calc_polynomials()
-    at_list = gr.calc_values_at_T()
-    gr.calc_encrypted_values_at_T()
+    gr.setup_zk()
 
+    ## proving
     wasm_path = os.path.dirname(os.path.realpath(__file__)) + "/circuit/circuit.wasm"
     c = Calculator(wasm_path)
     witness = c.calculate({"a": 33, "b": 34})
-
     proof, publicSignals = gen_proof(gr.setup["vk_proof"], witness)

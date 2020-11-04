@@ -131,7 +131,7 @@ class Groth:
             "z_t" : z_t
         })
 
-        return [a_t, b_t, c_t, z_t]
+        return self.setup["qap"]
 
 
     def calc_encrypted_values_at_T(self):
@@ -175,6 +175,7 @@ class Groth:
         vk_verifier_delta_2 = mul_scalar(g2.g, kdelta).affine()
 
         vk_verifier_alfabeta_12 = pairing(vk_verifier_alfa_1, vk_verifier_beta_2)
+
         for i in range(num_vars):
             A = mul_scalar(g1.g, a_t[i])
             vk_proof_A[i] = A
@@ -252,8 +253,6 @@ class Groth:
         self.setup["vk_verifier"]["IC"] = g1.multi_affine(IC)
 
 if __name__ == "__main__":
+    ## setup
     gr = Groth(os.path.dirname(os.path.realpath(__file__)) + "/circuit/circuit.r1cs")
-    # gr.calc_polynomials()
-    # at_list = gr.calc_values_at_T()
-    # gr.calc_encrypted_values_at_T()
     gr.setup_zk()
