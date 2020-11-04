@@ -25,16 +25,60 @@ class Groth:
                 "protocol" : "groth",
                 "nPublic"  : int(self.r1cs.nPubInputs + self.r1cs.nOutputs)
             },
-            "toxic" : {}
+            "toxic" : {
+                "t" : None,
+                "kalfa" : None,
+                "kbeta" : None,
+                "kgamma" : None,
+                "kdelta" : None
+            },
+            "qap" : {
+                "a_t" : None,
+                "b_t" : None,
+                "c_t" : None,
+                "z_t" : None
+            }
+
         }
         total_domain = int(self.r1cs.nConstraints) + int(self.r1cs.nPubInputs) + int(self.r1cs.nOutputs)
         self.setup["vk_proof"]["domainBits"] = log2(total_domain) + 1
         self.setup["vk_proof"]["domainSize"] = 1 << self.setup["vk_proof"]["domainBits"]
 
         #self.setup["toxic"]["t"] = FQ(5, field_properties["bn128"]["r"])
-        self.setup["toxic"]["t"] = FQ(0, field_properties["bn128"]["r"]).random()
+        # self.setup["toxic"]["t"] = FQ(0, field_properties["bn128"]["r"]).random()
 
         self.PF = bn128_FieldPolynomial()
+
+    def setup_zk(self, toxic=None):
+        if self.setup["toxic"]["t"] != None:
+            pass
+        else:
+            self.update_toxic(toxic)
+
+        self.calc_polynomials()
+        self.calc_values_at_T()
+        self.calc_encrypted_values_at_T()
+
+    # toxic = {"t" : value, "kalfa" : value, "kbeta" : value, "kgamma" : value, "kdelta" : value}
+    def update_toxic(self, toxic=None):
+        if toxic == None:
+            self.setup["toxic"].update({
+                "t" : FQ(0, field_properties["bn128"]["r"]).random(),
+                "kalfa" : FQ(0, field_properties["bn128"]["r"]).random(),
+                "kbeta" : FQ(0, field_properties["bn128"]["r"]).random(),
+                "kgamma" : FQ(0, field_properties["bn128"]["r"]).random(),
+                "kdelta" : FQ(0, field_properties["bn128"]["r"]).random()
+            })
+        else:
+            self.setup["toxic"].update({
+                "t" : toxic["t"],
+                "kalfa" : toxic["kalfa"],
+                "kbeta" : toxic["kbeta"],
+                "kgamma" : toxic["kgamma"],
+                "kdelta" : toxic["kdelta"]
+            })
+
+        return self.setup["toxic"]
 
     def calc_polynomials(self):
         num_constraints = len(self.r1cs.constraints)
@@ -84,27 +128,36 @@ class Groth:
                 for c in C:
                     c_t[s] = c_t[s] + u[int(c)] * int(C[c])
 
-        return [a_t, b_t, c_t, z_t]
+        self.setup["qap"].update({
+            "a_t" : a_t,
+            "b_t" : b_t,
+            "c_t" : c_t,
+            "z_t" : z_t
+        })
+
+        return self.setup["qap"]
 
 
     def calc_encrypted_values_at_T(self):
         num_vars = int(self.r1cs.nVars)
         n_pub_plus_n_out = int(self.r1cs.nPubInputs) + int(self.r1cs.nOutputs) + 1
-        a_t, b_t, c_t, z_t = self.calc_values_at_T()
+
+        # a_t, b_t, c_t, z_t = self.calc_values_at_T()
+        a_t = self.setup["qap"]["a_t"]
+        b_t = self.setup["qap"]["b_t"]
+        c_t = self.setup["qap"]["c_t"]
+        z_t = self.setup["qap"]["z_t"]
+
         vk_proof_A = [None]*num_vars
         vk_proof_B1 = [None]*num_vars
         vk_proof_B2 = [None]*num_vars
         vk_proof_C = [None]*num_vars
         vk_proof_IC = [None]*n_pub_plus_n_out
 
-        #kalfa = FQ(5, field_properties["bn128"]["r"])
-        #kbeta = FQ(5, field_properties["bn128"]["r"])
-        #kgamma = FQ(5, field_properties["bn128"]["r"])
-        #kdelta = FQ(5, field_properties["bn128"]["r"])
-        kalfa = FQ(0, field_properties["bn128"]["r"]).random()
-        kbeta = FQ(0, field_properties["bn128"]["r"]).random()
-        kgamma = FQ(0, field_properties["bn128"]["r"]).random()
-        kdelta = FQ(0, field_properties["bn128"]["r"]).random()
+        kalfa = self.setup["toxic"]["kalfa"]
+        kbeta = self.setup["toxic"]["kbeta"]
+        kgamma = self.setup["toxic"]["kgamma"]
+        kdelta = self.setup["toxic"]["kdelta"]
 
         inv_delta = 1 / kdelta
         inv_gamma = 1 / kgamma
@@ -126,6 +179,7 @@ class Groth:
         vk_verifier_delta_2 = mul_scalar(g2.g, kdelta).affine()
 
         vk_verifier_alfabeta_12 = pairing(vk_verifier_alfa_1, vk_verifier_beta_2)
+
         for i in range(num_vars):
             A = mul_scalar(g1.g, a_t[i])
             vk_proof_A[i] = A
@@ -145,14 +199,19 @@ class Groth:
             vk_proof_C[i] = C
 
         maxH = self.setup["vk_proof"]["domainSize"] + 1
+
         hExps = [None] * maxH
         zod = inv_delta * z_t
         hExps[0] = mul_scalar(g1.g, zod)
+
         eT = toxic_t = self.setup["toxic"]["t"]
+
         for i in range(1, maxH):
             hExps[i] = mul_scalar(g1.g, eT * zod)
             eT = eT * toxic_t
+
         self.setup["vk_proof"]["hExps"] = hExps
+
         self.setup["vk_proof"].update({
             "hExps": hExps,
             "A": vk_proof_A,
@@ -164,7 +223,8 @@ class Groth:
             "vk_delta_1": vk_proof_delta_1,
             "vk_beta_2": vk_proof_beta_2,
             "vk_delta_2": vk_proof_delta_2
-            })
+        })
+
         self.setup["vk_verifier"].update({
             "IC": vk_proof_IC,
             "vk_alfabeta_12": vk_verifier_alfabeta_12,
@@ -172,30 +232,31 @@ class Groth:
             "vk_beta_2": vk_verifier_beta_2,
             "vk_gamma_2": vk_verifier_gamma_2,
             "vk_delta_2": vk_verifier_delta_2
-            })
+        })
+
         self.setup["toxic"].update({
             "t": toxic_t,
             "kalfa": kalfa,
             "kbeta": kbeta,
             "kgamma": kgamma,
             "kdelta": kdelta
-            })
+        })
 
         A = self.setup["vk_proof"]["A"]
-        self.setup["vk_proof"]["A"] = g1.multi_affine(A)
         B1 = self.setup["vk_proof"]["B1"]
-        self.setup["vk_proof"]["B1"] = g1.multi_affine(B1)
         B2 = self.setup["vk_proof"]["B2"]
-        self.setup["vk_proof"]["B2"] = g2.multi_affine(B2)
         C = self.setup["vk_proof"]["C"]
-        self.setup["vk_proof"]["C"] = g1.multi_affine(C)
         hExps = self.setup["vk_proof"]["hExps"]
-        self.setup["vk_proof"]["hExps"] = g1.multi_affine(hExps)
         IC = self.setup["vk_verifier"]["IC"]
+
+        self.setup["vk_proof"]["A"] = g1.multi_affine(A)
+        self.setup["vk_proof"]["B1"] = g1.multi_affine(B1)
+        self.setup["vk_proof"]["B2"] = g2.multi_affine(B2)
+        self.setup["vk_proof"]["C"] = g1.multi_affine(C)
+        self.setup["vk_proof"]["hExps"] = g1.multi_affine(hExps)
         self.setup["vk_verifier"]["IC"] = g1.multi_affine(IC)
 
 if __name__ == "__main__":
+    ## setup
     gr = Groth(os.path.dirname(os.path.realpath(__file__)) + "/circuit/circuit.r1cs")
-    gr.calc_polynomials()
-    at_list = gr.calc_values_at_T()
-    gr.calc_encrypted_values_at_T()
+    gr.setup_zk()

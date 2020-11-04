@@ -31,7 +31,7 @@ def p2str(p):
         buf.append(i8[p+i])
         i += 1
     return ''.join(map(unichr, buf))
-    
+
 class Field1(FQ):
     def __init__(self, val, field_modulus):
         self.field_modulus = field_modulus
@@ -85,7 +85,7 @@ class Calculator:
         self.rinv = self.r.inv()
 
     def fr(self):
-        return 
+        return
 
     def get_mem_uint32(self, pos):
         buf = self.i32[pos]
@@ -147,7 +147,7 @@ class Calculator:
             self.set_mem_uint32(p >> 2, a)
             self.set_mem_uint32((p >> 2) + 1, 0)
             return
-        
+
         self.set_mem_uint32(p >> 2, 0)
         self.set_mem_uint32((p >> 2) + 1, 0x80000000)
         arr = self.to_array(v, 0x100000000)

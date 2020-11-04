@@ -42,6 +42,7 @@ def gen_proof(vk_proof, witness):
 
     for i in range(len(h)):
         proof["pi_c"] = CurvePoint(g1, proof["pi_c"]) + CurvePoint(g1, mul_scalar(vk_proof["hExps"][i], h[i]))
+
     proof["pi_c"] = proof["pi_c"] + mul_scalar(proof["pi_a"], s)
     proof["pi_c"] = proof["pi_c"] + mul_scalar(pib1, r)
     proof["pi_c"] = proof["pi_c"] + mul_scalar(vk_proof["vk_delta_1"], (r * s).neg())
@@ -51,7 +52,9 @@ def gen_proof(vk_proof, witness):
     proof["pi_a"] = proof["pi_a"].affine()
     proof["pi_b"] = proof["pi_b"].affine()
     proof["pi_c"] = proof["pi_c"].affine()
+
     proof["protocol"] = "groth"
+
     return (proof, public_signals)
 
 def calculate_H(vk_proof, witness):
@@ -71,6 +74,7 @@ def calculate_H(vk_proof, witness):
 
     r = log2(m) + 1
     pol._set_roots(r)
+
     for i in range(len(polA_S)):
         polA_S[i] = polA_S[i] * pol.roots[r][i]
         polB_S[i] = polB_S[i] * pol.roots[r][i]
@@ -78,22 +82,23 @@ def calculate_H(vk_proof, witness):
     polA_todd = pol.fft(polA_S)
     polB_todd = pol.fft(polB_S)
     polAB_T = [None] * len(polA_S) * 2
+
     for i in range(len(polA_S)):
         polAB_T[2*i] = polA_T[i] * polB_T[i]
         polAB_T[2*i+1] = polA_todd[i] * polB_todd[i]
 
     h_s = pol.ifft(polAB_T)
     h_s = h_s[m:]
+
     return h_s
 
 if __name__ == "__main__":
+    ## setup
     gr = Groth(os.path.dirname(os.path.realpath(__file__)) + "/circuit/circuit.r1cs")
-    gr.calc_polynomials()
-    at_list = gr.calc_values_at_T()
-    gr.calc_encrypted_values_at_T()
+    gr.setup_zk()
 
+    ## proving
     wasm_path = os.path.dirname(os.path.realpath(__file__)) + "/circuit/circuit.wasm"
     c = Calculator(wasm_path)
     witness = c.calculate({"a": 33, "b": 34})
-
     proof, publicSignals = gen_proof(gr.setup["vk_proof"], witness)
