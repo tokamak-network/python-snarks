@@ -64,7 +64,7 @@ class Calculator:
         import_object.register('runtime', runtime)
         self.instance = Instance(module, import_object)
 
-        self.i32 = self.memory.int32_view()
+        self.i32 = self.memory.uint32_view()
         self.n32 = (self.instance.exports.getFrLen() >> 2) - 2
         pRawPrime = self.instance.exports.getPRawPrime()
 

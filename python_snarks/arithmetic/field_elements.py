@@ -109,7 +109,7 @@ class FQ(object):
         return type(self)((self.n - on) % self.field_modulus, self.field_modulus)
 
     def __mod__(self: T_FQ, other: IntOrFQ) -> T_FQ:
-        raise NotImplementedError("Modulo Operation not yet supported by fields")
+        return type(self)((self.n % other), self.field_modulus)
 
     def __div__(self: T_FQ, other: IntOrFQ) -> T_FQ:
         if isinstance(other, FQ):
