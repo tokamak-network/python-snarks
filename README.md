@@ -10,6 +10,7 @@ $ pip install python-snarks
 ```
 
 # Usage
+
 ```python
 import os
 from python_snarks import Groth, Calculator, gen_proof, is_valid
@@ -37,6 +38,30 @@ def test_groth():
     result = is_valid(gr.setup["vk_verifier"], proof, publicSignals)
     print(result)
     assert result == True
+```
+
+### export solidity verifier
+
+Groth class's export_solidity_verifier function creates solidity file. You can deploy it on ethereum network and use it as a verifier.
+
+```python
+import os
+from python_snarks import Groth, Calculator, gen_proof, is_valid
+
+def test_groth():
+    ## 1. setup zkp
+    print("1. setting up...")
+    gr = Groth(os.path.dirname(os.path.realpath(__file__)) + "/circuit/circuit.r1cs")
+    gr.setup_zk()
+    gr.export_solidity_verifier("verifier.sol")
+```
+
+### verifying on contract
+
+```python
+result = contract_instance.functions.verifyProof(
+        ...proof and public signals...
+    ).call()
 ```
 
 # Test
