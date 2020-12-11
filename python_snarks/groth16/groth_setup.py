@@ -172,11 +172,11 @@ class Groth:
         vk_proof_beta_2 = mul_scalar(g2.g, kbeta).affine()
         vk_proof_delta_2 = mul_scalar(g2.g, kdelta).affine()
 
-        vk_verifier_alfa_1 = mul_scalar(g1.g, kalfa).affine()
+        vk_verifier_alfa_1 = vk_proof_alfa_1
 
-        vk_verifier_beta_2 = mul_scalar(g2.g, kbeta).affine()
+        vk_verifier_beta_2 = vk_proof_beta_2
         vk_verifier_gamma_2 = mul_scalar(g2.g, kgamma).affine()
-        vk_verifier_delta_2 = mul_scalar(g2.g, kdelta).affine()
+        vk_verifier_delta_2 = vk_proof_delta_2
 
         vk_verifier_alfabeta_12 = pairing(vk_verifier_alfa_1, vk_verifier_beta_2)
 
