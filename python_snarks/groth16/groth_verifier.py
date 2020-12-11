@@ -15,7 +15,7 @@ def is_valid(vk_verifier, proof, public_signals):
         cpub = cpub + tmp1
 
     pair = pairing(proof["pi_a"], proof["pi_b"])
-    tmp1 = F12(vk_verifier["vk_alfabeta_12"][0], vk_verifier["vk_alfabeta_12"][1])
+    tmp1 = F12(vk_verifier["vk_alphabeta_12"][0], vk_verifier["vk_alphabeta_12"][1])
 
     buf = pairing(cpub, vk_verifier["vk_gamma_2"])
     tmp2 = F12(buf[0], buf[1])

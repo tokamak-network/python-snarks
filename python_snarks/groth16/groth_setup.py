@@ -27,7 +27,7 @@ class Groth:
             },
             "toxic" : {
                 "t" : None,
-                "kalfa" : None,
+                "kalpha" : None,
                 "kbeta" : None,
                 "kgamma" : None,
                 "kdelta" : None
@@ -59,12 +59,12 @@ class Groth:
         self.calc_values_at_T()
         self.calc_encrypted_values_at_T()
 
-    # toxic = {"t" : value, "kalfa" : value, "kbeta" : value, "kgamma" : value, "kdelta" : value}
+    # toxic = {"t" : value, "kalpha" : value, "kbeta" : value, "kgamma" : value, "kdelta" : value}
     def update_toxic(self, toxic=None):
         if toxic == None:
             self.setup["toxic"].update({
                 "t" : FQ(0, field_properties["bn128"]["r"]).random(),
-                "kalfa" : FQ(0, field_properties["bn128"]["r"]).random(),
+                "kalpha" : FQ(0, field_properties["bn128"]["r"]).random(),
                 "kbeta" : FQ(0, field_properties["bn128"]["r"]).random(),
                 "kgamma" : FQ(0, field_properties["bn128"]["r"]).random(),
                 "kdelta" : FQ(0, field_properties["bn128"]["r"]).random()
@@ -72,7 +72,7 @@ class Groth:
         else:
             self.setup["toxic"].update({
                 "t" : toxic["t"],
-                "kalfa" : toxic["kalfa"],
+                "kalpha" : toxic["kalpha"],
                 "kbeta" : toxic["kbeta"],
                 "kgamma" : toxic["kgamma"],
                 "kdelta" : toxic["kdelta"]
@@ -154,7 +154,7 @@ class Groth:
         vk_proof_C = [None]*num_vars
         vk_proof_IC = [None]*n_pub_plus_n_out
 
-        kalfa = self.setup["toxic"]["kalfa"]
+        kalpha = self.setup["toxic"]["kalpha"]
         kbeta = self.setup["toxic"]["kbeta"]
         kgamma = self.setup["toxic"]["kgamma"]
         kdelta = self.setup["toxic"]["kdelta"]
@@ -165,20 +165,20 @@ class Groth:
         g1 = G1()
         g2 = G2()
 
-        vk_proof_alfa_1 = mul_scalar(g1.g, kalfa).affine()
+        vk_proof_alpha_1 = mul_scalar(g1.g, kalpha).affine()
         vk_proof_beta_1 = mul_scalar(g1.g, kbeta).affine()
         vk_proof_delta_1 = mul_scalar(g1.g, kdelta).affine()
 
         vk_proof_beta_2 = mul_scalar(g2.g, kbeta).affine()
         vk_proof_delta_2 = mul_scalar(g2.g, kdelta).affine()
 
-        vk_verifier_alfa_1 = vk_proof_alfa_1
+        vk_verifier_alpha_1 = vk_proof_alpha_1
 
         vk_verifier_beta_2 = vk_proof_beta_2
         vk_verifier_gamma_2 = mul_scalar(g2.g, kgamma).affine()
         vk_verifier_delta_2 = vk_proof_delta_2
 
-        vk_verifier_alfabeta_12 = pairing(vk_verifier_alfa_1, vk_verifier_beta_2)
+        vk_verifier_alphabeta_12 = pairing(vk_verifier_alpha_1, vk_verifier_beta_2)
 
         for i in range(num_vars):
             A = mul_scalar(g1.g, a_t[i])
@@ -189,12 +189,12 @@ class Groth:
             vk_proof_B2[i] = B2
 
         for i in range(self.setup["vk_proof"]["nPublic"] + 1):
-            ps = ((a_t[i] * kbeta) + (b_t[i] * kalfa) + c_t[i]) * inv_gamma
+            ps = ((a_t[i] * kbeta) + (b_t[i] * kalpha) + c_t[i]) * inv_gamma
             IC = mul_scalar(g1.g, ps)
             vk_proof_IC[i] = IC
 
         for i in range(self.setup["vk_proof"]["nPublic"] + 1, num_vars):
-            ps = ((a_t[i] * kbeta) + (b_t[i] * kalfa) + c_t[i]) * inv_delta
+            ps = ((a_t[i] * kbeta) + (b_t[i] * kalpha) + c_t[i]) * inv_delta
             C = mul_scalar(g1.g, ps)
             vk_proof_C[i] = C
 
@@ -218,7 +218,7 @@ class Groth:
             "B1": vk_proof_B1,
             "B2": vk_proof_B2,
             "C": vk_proof_C,
-            "vk_alfa_1": vk_proof_alfa_1,
+            "vk_alpha_1": vk_proof_alpha_1,
             "vk_beta_1": vk_proof_beta_1,
             "vk_delta_1": vk_proof_delta_1,
             "vk_beta_2": vk_proof_beta_2,
@@ -227,8 +227,8 @@ class Groth:
 
         self.setup["vk_verifier"].update({
             "IC": vk_proof_IC,
-            "vk_alfabeta_12": vk_verifier_alfabeta_12,
-            "vk_alfa_1": vk_verifier_alfa_1,
+            "vk_alphabeta_12": vk_verifier_alphabeta_12,
+            "vk_alpha_1": vk_verifier_alpha_1,
             "vk_beta_2": vk_verifier_beta_2,
             "vk_gamma_2": vk_verifier_gamma_2,
             "vk_delta_2": vk_verifier_delta_2
@@ -236,7 +236,7 @@ class Groth:
 
         self.setup["toxic"].update({
             "t": toxic_t,
-            "kalfa": kalfa,
+            "kalpha": kalpha,
             "kbeta": kbeta,
             "kgamma": kgamma,
             "kdelta": kdelta
@@ -263,7 +263,7 @@ class Groth:
         with open(template_path, "r") as f:
             data = f.read()
 
-            vkalpha1_str = str(self.setup["vk_verifier"]["vk_alfa_1"][0]) + "," + str(self.setup["vk_verifier"]["vk_alfa_1"][1])
+            vkalpha1_str = str(self.setup["vk_verifier"]["vk_alpha_1"][0]) + "," + str(self.setup["vk_verifier"]["vk_alpha_1"][1])
             data = data.replace("<%vk_alpha1%>", vkalpha1_str)
 
 

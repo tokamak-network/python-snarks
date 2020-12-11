@@ -29,7 +29,7 @@ def gen_proof(vk_proof, witness):
     for i in range(vk_proof["nPublic"] + 1, vk_proof["nVars"]):
         proof["pi_c"] = CurvePoint(g1, proof["pi_c"]) + CurvePoint(g1, mul_scalar(vk_proof["C"][i], witness[i]))
 
-    proof["pi_a"] = proof["pi_a"] + vk_proof["vk_alfa_1"]
+    proof["pi_a"] = proof["pi_a"] + vk_proof["vk_alpha_1"]
     proof["pi_a"] = proof["pi_a"] + mul_scalar(vk_proof["vk_delta_1"], r)
 
     proof["pi_b"] = proof["pi_b"] + vk_proof["vk_beta_2"]
