@@ -14,7 +14,7 @@ def is_valid(vk_verifier, proof, public_signals):
         tmp1 = mul_scalar(CurvePoint(g1, vk_verifier["IC"][i+1]), public_signals[i])
         cpub = cpub + tmp1
 
-    pair = pairing(proof["pi_a"], proof["pi_b"])
+    lhs = pairing(proof["pi_a"], proof["pi_b"])
     tmp1 = F12(vk_verifier["vk_alphabeta_12"][0], vk_verifier["vk_alphabeta_12"][1])
 
     buf = pairing(cpub, vk_verifier["vk_gamma_2"])
@@ -22,9 +22,9 @@ def is_valid(vk_verifier, proof, public_signals):
 
     buf = pairing(proof["pi_c"], vk_verifier["vk_delta_2"])
     tmp3 = F12(buf[0], buf[1])
-    tmp = tmp1 * (tmp2 * tmp3)
+    rhs = tmp1 * tmp2 * tmp3
 
-    return pair == tmp
+    return lhs == rhs
 
 if __name__ == "__main__":
     ## 1.setup
